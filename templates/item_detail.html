@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-{{ foo }}
+{% load filters %}
+
+
         {% block title %}
             Информация о товаре
         {%  endblock title %}
@@ -17,10 +19,10 @@
                         <div class="small mb-1">SKU: BST-498</div>
                         <h1 class="display-5 fw-bolder">{{ item.brand }} {{ item.model }}</h1>
                         <div class="fs-5 mb-5">
-                            <span class="text-decoration-line-through">$45.00</span>
-                            <span>$40.00</span>
+                            <span class="text-decoration-line-through">{{ item.price|discount:20|currency:'rub' }}</span>
+                            <span>{{ item.price|currency:'rub' }}</span>
                         </div>
-                        <p class="lead">Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium at dolorem quidem modi. Nam sequi consequatur obcaecati excepturi alias magni, accusamus eius blanditiis delectus ipsam minima ea iste laborum vero?</p>
+                        <p class="lead">{{ item.description }}</p>
                         <div class="d-flex">
                             <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" />
                             <button class="btn btn-outline-dark flex-shrink-0" type="button">
