@@ -11,10 +11,18 @@ def index(request):
     return render(request, template_name, context)
 
 
-class CategoryDetail(DetailView):
-    model = Category
-    context_object_name = 'category_detail'
-    template_name = 'items.html'
+class ItemDetail(DetailView):
+    context_object_name = 'item'
+    template_name = 'item_detail.html'
+    slug_url_kwarg = 'item_slug'
+    slug_field = 'slug'
+
+    def dispatch(self, request, *args, **kwargs):
+        category = Category.objects.get(slug=kwargs['category_slug'])
+        for cls in Item.__subclasses__():
+            if cls.objects.filter(category=category):
+                self.model = cls
+                return super().dispatch(request, *args, **kwargs)
 
 class ItemList(ListView):
     model = Item

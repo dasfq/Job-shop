@@ -137,37 +137,8 @@ class Brand(models.Model):
         ordering = ('name',)
 
 
-
-class Item(models.Model):
-    category = models.ManyToManyField(Category,
-                                      verbose_name='Категория товаров',
-                                      related_name='%(app_label)s_%(class)s_items',
-                                      related_query_name='%(app_label)s_%(class)s_items',
-                                      blank=True)
-    brand = models.ForeignKey(Brand, max_length=80, verbose_name='Фирма', blank=True, on_delete=models.CASCADE)
-    model = models.CharField(max_length=20, verbose_name='Модель')
-    description = models.CharField(max_length=100, verbose_name='Описание товара', blank=True)
-    price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
-    in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
-    # picture = models.ForeignKey(ItemPicture,
-    #                             blank=True,
-    #                             on_delete=models.CASCADE,
-    #                             verbose_name='Изображение товара',
-    #                             related_name='%(app_label)s_%(class)s_items',
-    #                             related_query_name='%(app_label)s_%(class)s_items',
-    #                             )
-
-    class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = "Товары"
-        abstract = True
-
-    def __str__(self):
-        return f'{self.brand} {self.model}'
-
-
 class ItemPicture(models.Model):
-    image = models.ImageField(upload_to='main/static/item_pictures', verbose_name='Изображение')
+    image = models.ImageField(upload_to='item_pictures', verbose_name='Изображение')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -178,6 +149,31 @@ class ItemPicture(models.Model):
 
     def __str__(self) -> str:
         return f'{self.id}'
+
+
+class Item(models.Model):
+    category = models.ManyToManyField(Category,
+                                      verbose_name='Категория товаров',
+                                      related_name='%(app_label)s_%(class)s_items',
+                                      related_query_name='%(app_label)s_%(class)s_items',
+                                      blank=True)
+    brand = models.ForeignKey(Brand, max_length=80, verbose_name='Фирма', blank=True, on_delete=models.CASCADE)
+    model = models.CharField(max_length=20, verbose_name='Модель')
+    slug = models.SlugField(unique=True, default='')
+    description = models.CharField(max_length=100, verbose_name='Описание товара', blank=True)
+    price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
+    in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
+    image = GenericRelation(ItemPicture)
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = "Товары"
+        abstract = True
+
+    def __str__(self):
+        return f'{self.brand} {self.model}'
+
+
 
 class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
