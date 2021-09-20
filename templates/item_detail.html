@@ -16,13 +16,33 @@
                         {% endfor %}
                     </div>
                     <div class="col-md-6">
+                        <nav aria-label="breadcrumb">
+                          <ol class="breadcrumb breadcrumb-dividers-label shadow bg-white">
+                            <li class="breadcrumb-item"><a href="#" class="p-2">Главная</a></li>
+                            <li class="breadcrumb-item"><a href="#" class="p-2">{{ object.category.all.0 }}</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+                          </ol>
+                        </nav>
                         <div class="small mb-1">SKU: BST-498</div>
                         <h1 class="display-5 fw-bolder">{{ item.brand }} {{ item.model }}</h1>
                         <div class="fs-5 mb-5">
+                            <span class="">Цена: </span>
                             <span class="text-decoration-line-through">{{ item.price|discount:20|currency:'rub' }}</span>
                             <span>{{ item.price|currency:'rub' }}</span>
                         </div>
                         <p class="lead">{{ item.description }}</p>
+                        <p class="lead"><span class="fs-5">На складе: </span><span>{{ item.in_stock_qty }} шт.</span></p>
+                        <table class="table">
+                        {% for parameter in parameters %}
+                          <tbody>
+                            <tr>
+                              <td>{{ parameter.name }}</td>
+                              <td>{{ parameter.value }} {{ parameter.units }}</td>
+                            </tr>
+                          </tbody>
+                        {% endfor %}
+                        </table>
+
                         <div class="d-flex">
                             <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" />
                             <button class="btn btn-outline-dark flex-shrink-0" type="button">

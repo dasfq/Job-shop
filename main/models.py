@@ -151,30 +151,6 @@ class ItemPicture(models.Model):
         return f'{self.id}'
 
 
-class Item(models.Model):
-    category = models.ManyToManyField(Category,
-                                      verbose_name='Категория товаров',
-                                      related_name='%(app_label)s_%(class)s_items',
-                                      related_query_name='%(app_label)s_%(class)s_items',
-                                      blank=True)
-    brand = models.ForeignKey(Brand, max_length=80, verbose_name='Фирма', blank=True, on_delete=models.CASCADE)
-    model = models.CharField(max_length=20, verbose_name='Модель')
-    slug = models.SlugField(unique=True, default='')
-    description = models.CharField(max_length=100, verbose_name='Описание товара', blank=True)
-    price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
-    in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
-    image = GenericRelation(ItemPicture)
-
-    class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = "Товары"
-        abstract = True
-
-    def __str__(self):
-        return f'{self.brand} {self.model}'
-
-
-
 class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
     units = models.CharField(max_length=5, verbose_name='Единицы измерения', blank=True)
@@ -200,6 +176,44 @@ class ItemParameter(models.Model):
     class Meta:
         verbose_name = 'Параметр'
         verbose_name_plural = "Список параметров товаров"
+
+
+class Item(models.Model):
+    category = models.ManyToManyField(Category,
+                                      verbose_name='Категория товаров',
+                                      related_name='%(app_label)s_%(class)s_items',
+                                      related_query_name='%(app_label)s_%(class)s_items',
+                                      blank=True)
+    brand = models.ForeignKey(Brand, max_length=80, verbose_name='Фирма', blank=True, on_delete=models.CASCADE)
+    model = models.CharField(max_length=20, verbose_name='Модель')
+    slug = models.SlugField(unique=True, default='')
+    description = models.CharField(max_length=100, verbose_name='Описание товара', blank=True)
+    price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
+    in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
+    image = GenericRelation(ItemPicture)
+    parameter = GenericRelation(ItemParameter)
+
+    def get_parameters_list(self):
+        '''
+        Returns list of item parameters as a list of dicts for transfer in context.
+        :return:
+        '''
+        param_list = []
+        for param in self.parameter.all():
+            parameter = {}
+            parameter['name'] = param.parameter.name
+            parameter['value'] = param.value
+            parameter['units'] = param.parameter.units
+            param_list.append(parameter)
+        return param_list
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = "Товары"
+        abstract = True
+
+    def __str__(self):
+        return f'{self.brand} {self.model}'
 
 
 
@@ -230,7 +244,6 @@ class Review(models.Model):
 
 
 class Notebook(Item):
-    parameter = GenericRelation(ItemParameter)
 
     class Meta(Item.Meta):
         verbose_name = 'Ноутбук'

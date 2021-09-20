@@ -24,6 +24,12 @@ class ItemDetail(DetailView):
                 self.model = cls
                 return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        param_list = self.object.get_parameters_list()
+        context['parameters'] = param_list
+        return context
+
 class ItemList(ListView):
     model = Item
     template_name = 'items.html'
