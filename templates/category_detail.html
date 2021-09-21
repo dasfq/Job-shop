@@ -4,8 +4,7 @@
 
 {% block content %}
 
-{% for item in items_list %}
-{{ item.name }}
-{% endfor %}
+    {{ category.name }}
+    {{ category.main_notebook_items.all.0.name }}
 
 {% endblock content %}

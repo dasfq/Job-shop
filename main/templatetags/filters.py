@@ -1,5 +1,6 @@
 from django import template
 import math
+from django.db.models import F
 
 register = template.Library()
 

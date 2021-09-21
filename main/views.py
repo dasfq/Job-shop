@@ -28,12 +28,21 @@ class ItemDetail(DetailView):
         context = super().get_context_data(**kwargs)
         param_list = self.object.get_parameters_list()
         context['parameters'] = param_list
+        # print(self.object.category.all()[0].url)
         return context
+
+
+class CategoryDetail(DetailView):
+    model = Category
+    template_name = 'category_detail.html'
+    slug_url_kwarg = 'category_slug'
+    slug_field = 'slug'
 
 class ItemList(ListView):
     model = Item
-    template_name = 'items.html'
+    template_name = 'category_detail.html'
     context_object_name = 'items_list'
+    context_object_name = 'category'
 
     def get_queryset(self):
         category = self.kwargs['pk']

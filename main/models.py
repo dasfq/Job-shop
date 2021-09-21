@@ -4,7 +4,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator as username_
 from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-
+from django.urls import reverse
 
 
 from .managers import CustomUserManager
@@ -101,16 +101,12 @@ class Subscriber(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=15)
     slug = models.SlugField(unique=True, default='')
+    items_number = models.IntegerField(default=0)
 
 
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
-        # задаёт ограничение уникальности для данных полей.
-        # constraints = [
-        #     models.UniqueConstraint(fields=['parameters.name'], name='unique_item')
-        # ]
 
     def __str__(self):
         return str(self.name)
@@ -123,6 +119,13 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         return super().save(self, *args, **kwargs)
 
+    def get_absolute_url(self):
+        """
+        Функция определения url к объекту :class:'Category'
+        :return: url к объекту :class:'Category'
+        :rtype: str, optional
+        """
+        return reverse('category_detail', kwargs={'category_slug': self.slug})
 
 
 class Brand(models.Model):
@@ -192,6 +195,10 @@ class Item(models.Model):
     in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
     image = GenericRelation(ItemPicture)
     parameter = GenericRelation(ItemParameter)
+
+    @classmethod
+    def items_count(cls):
+        return len(cls.objects.all())
 
     def get_parameters_list(self):
         '''
