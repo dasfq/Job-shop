@@ -1,43 +1,47 @@
-# from django.db import models
-# from main.models import User
-#
-#
-# class Order(models.Model):
-#
-#     class StatusChoices(models.TextChoices):
-#         cart = 'cart', 'корзина'
-#         NEW = 'new', 'новый'
-#         CONFIRMED = 'confirmed', "подтверждён"
-#         ASSEMBLED = 'assembled', "собран"
-#         SENT = 'sent', "отправлен"
-#         DELIVERED = 'delivered', "доставлен"
-#         CANCELED = 'canceled', "отменён"
-#
-#     user = models.ForeignKey(User, verbose_name='Пользователь', related_name='orders', blank=True,
-#                              on_delete=models.CASCADE)
-#     date = models.DateTimeField(auto_now_add=True)
-#     status = models.CharField(
-#         verbose_name='Статус',
-#         choices=StatusChoices.choices,
-#         max_length=10,
-#         default=StatusChoices.cart)
-#
-#     class Meta:
-#         verbose_name = 'Заказ'
-#         verbose_name_plural = "Заказы"
-#         ordering = ('-date',)
-#
-#     def __str__(self):
-#         return str(self.date)
-#
-#
-# class OrderInfo(models.Model):
-#     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='ordered_items', blank=True,
-#                               on_delete=models.CASCADE)
-#     item_info = models.ForeignKey(ItemInfo, verbose_name='Информация о продукте', related_name='ordered_items', blank=True,
-#                              on_delete=models.CASCADE)
-#     quantity = models.PositiveIntegerField(verbose_name='Количество')
-#
-#     class Meta:
-#         verbose_name = 'Заказанная позиция'
-#         verbose_name_plural = "Заказанные позиции"
+from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+
+from main.models import *
+
+
+class Order(models.Model):
+
+    class StatusChoices(models.TextChoices):
+        CART = 'cart', 'корзина'
+        NEW = 'new', 'новый'
+        CONFIRMED = 'confirmed', "подтверждён"
+        ASSEMBLED = 'assembled', "собран"
+        SENT = 'sent', "отправлен"
+        DELIVERED = 'delivered', "доставлен"
+        CANCELED = 'canceled', "отменён"
+
+    customer = models.ForeignKey(Customer, verbose_name='Покупатель', related_name='orders', on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        verbose_name='Статус',
+        choices=StatusChoices.choices,
+        max_length=10,
+        default=StatusChoices.CART)
+    delivery_date = models.DateField(blank=True, null=True, verbose_name='Дата достаки')
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = "Заказы"
+        ordering = ('-date',)
+
+    def __str__(self):
+        return f'Order {self.customer} {self.status}'
+
+
+class OrderInfo(models.Model):
+    order = models.ForeignKey(Order, verbose_name='Заказ', related_name='ordered_items', blank=True,
+                              on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    quantity = models.PositiveIntegerField(verbose_name='Количество')
+
+    class Meta:
+        verbose_name = 'Заказанная позиция'
+        verbose_name_plural = "Заказанные позиции"

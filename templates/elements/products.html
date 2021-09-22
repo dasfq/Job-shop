@@ -9,7 +9,9 @@
 
                                 <!-- Product image-->
                                 {% for image in item.image.all %}
+                                    <a  href="{% url 'item_detail' item_model_name=item.model_name item_slug=item.slug %}">
                                     <img class="card-img-top" src="{{ image.image.url }}" alt="..." />
+                                    </a>
                                 {% endfor %}
                                 <!-- Product details-->
                                 <div class="card-body p-4">
@@ -30,7 +32,11 @@
                                 </div>
                                 <!-- Product actions-->
                                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                    <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">View options</a></div>
+                                    <div class="text-center">
+                                        <a class="btn btn-outline-dark mt-auto" href="{% url 'add_to_cart' item_model_name=item.model_name item_slug=item.slug %}">
+                                            Купить
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
