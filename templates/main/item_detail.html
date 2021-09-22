@@ -12,6 +12,10 @@
                 <div class="row gx-4 gx-lg-5 align-items-center">
                     <div class="col-md-6">
                         {% for image in item.image.all %}
+                            {% if item.discount_price %}
+                            <!-- Sale badge-->
+                            <div class="badge bg-warning text-white position-relative" style="top: 0.5rem; right: 0.5rem">Sale</div>
+                            {% endif %}
                         <img class="card-img-top mb-5 mb-md-0" src="{{ image.image.url }}" alt="..." />
                         {% endfor %}
                     </div>
@@ -25,9 +29,12 @@
                         </nav>
                         <div class="small mb-1">SKU: BST-498</div>
                         <h1 class="display-5 fw-bolder">{{ item.brand }} {{ item.model }}</h1>
+                        <!-- Product price-->
                         <div class="fs-5 mb-5">
                             <span class="">Цена: </span>
-                            <span class="text-decoration-line-through">{{ item.price|discount:20|currency:'rub' }}</span>
+                            {% if item.discount_price %}
+                            <span class="text-decoration-line-through">{{ item.discount_price|currency:'rub' }}</span>
+                            {% endif %}
                             <span>{{ item.price|currency:'rub' }}</span>
                         </div>
                         <p class="lead">{{ item.description }}</p>
@@ -42,13 +49,15 @@
                           </tbody>
                         {% endfor %}
                         </table>
-
+                        <!-- Add to cart btn -->
                         <div class="d-flex">
                             <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" />
-                            <button class="btn btn-outline-dark flex-shrink-0" type="button">
-                                <i class="bi-cart-fill me-1"></i>
-                                Add to cart
-                            </button>
+                            <a href="{% url 'add_to_cart' item_model_name=item.model_name item_slug=item.slug %}">
+                                <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                                    <i class="bi-cart-fill me-1"></i>
+                                    В корзину
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>

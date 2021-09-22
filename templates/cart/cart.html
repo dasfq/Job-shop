@@ -1,0 +1,10 @@
+{% extends 'elements/base.html' %}
+
+
+
+{% block content %}
+ {% for item in cart.ordered_items.all %}
+    {{ item.content_object }}
+    {{ item.quantity }}
+ {% endfor %}
+{% endblock content %}

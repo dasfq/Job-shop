@@ -69,6 +69,9 @@ class Customer(models.Model):
         verbose_name = 'Покупатель'
         verbose_name_plural = 'Покупатели'
 
+    def __str__(self):
+        return str(self.user)
+
 
 class Contact(models.Model):
     customer = models.ForeignKey(Customer, verbose_name='Пользователь',default=None, on_delete=models.CASCADE, related_name='contacts')
@@ -205,6 +208,9 @@ class Item(models.Model):
     image = GenericRelation(ItemPicture)
     parameter = GenericRelation(ItemParameter)
 
+    @property
+    def model_name(self):
+        return self._meta.model_name
 
     @classmethod
     def items_count(cls):
