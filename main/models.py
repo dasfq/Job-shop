@@ -1,11 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, Group, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator as username_validator
-from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.urls import reverse
-from django.db.models.deletion import Collector
 
 
 from .managers import CustomUserManager
@@ -100,9 +98,8 @@ class Subscriber(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=15)
-    slug = models.SlugField(unique=True, default='')
-    items_number = models.IntegerField(default=0)
+    name = models.CharField(max_length=15, verbose_name="Имя")
+    item_model_name = models.CharField(unique=True, default='', max_length=15, verbose_name="Имя модели с товаром")
 
     @property
     def items_qty(self):
@@ -113,7 +110,7 @@ class Category(models.Model):
         """
         item_models = [
             f for f in self._meta.related_objects
-            if self.slug.rstrip('s') in f.name
+            if self.item_model_name.lower() in f.name
         ]
         count = getattr(self, item_models[0].name).count()
         return count
@@ -126,21 +123,13 @@ class Category(models.Model):
     def __str__(self):
         return str(self.name)
 
-    def save(self, *args, **kwargs):
-        """Переопределение метода save() с добавлением генерации значения для поля :param slug.
-        """
-
-        if self.slug is None:
-            self.slug = slugify(self.name)
-        return super().save(self, *args, **kwargs)
-
     def get_absolute_url(self):
         """
         Функция определения url к объекту :class:'Category'
         :return: url к объекту :class:'Category'
         :rtype: str, optional
         """
-        return reverse('category_detail', kwargs={'category_slug': self.slug})
+        return reverse('items_list', kwargs={'item_model_name': self.item_model_name})
 
 
 class Brand(models.Model):
@@ -213,7 +202,7 @@ class Item(models.Model):
 
     @classmethod
     def items_count(cls):
-        return len(cls.objects.all())
+        return cls.objects.count()
 
     def get_parameters_list(self):
         '''
