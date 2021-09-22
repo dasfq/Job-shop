@@ -5,6 +5,7 @@ from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.urls import reverse
+from django.db.models.deletion import Collector
 
 
 from .managers import CustomUserManager
@@ -102,6 +103,20 @@ class Category(models.Model):
     name = models.CharField(max_length=15)
     slug = models.SlugField(unique=True, default='')
     items_number = models.IntegerField(default=0)
+
+    @property
+    def items_qty(self):
+        """
+        Количество товара в них для вывода в Каталоге.
+        self.slug.rstrip('s') - имя товара - подстрока, которая содержится в related_name m2m поля.
+        :return:
+        """
+        item_models = [
+            f for f in self._meta.related_objects
+            if self.slug.rstrip('s') in f.name
+        ]
+        count = getattr(self, item_models[0].name).count()
+        return count
 
 
     class Meta:
