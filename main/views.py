@@ -18,7 +18,7 @@ class ItemDetail(DetailView):
     slug_field = 'slug'
 
     def dispatch(self, request, *args, **kwargs):
-        category = Category.objects.get(slug=kwargs['category_slug'])
+        category = Category.objects.get(item_model_name=kwargs['item_model_name'])
         for cls in Item.__subclasses__():
             if cls.objects.filter(category=category):
                 self.model = cls
@@ -28,7 +28,6 @@ class ItemDetail(DetailView):
         context = super().get_context_data(**kwargs)
         param_list = self.object.get_parameters_list()
         context['parameters'] = param_list
-        # print(self.object.category.all()[0].url)
         return context
 
 
@@ -39,12 +38,13 @@ class CategoryDetail(DetailView):
     slug_field = 'slug'
 
 class ItemList(ListView):
-    model = Item
     template_name = 'category_detail.html'
     context_object_name = 'items_list'
-    context_object_name = 'category'
 
-    def get_queryset(self):
-        category = self.kwargs['pk']
-        items = Item.objects.filter(category__pk=category)
+    def dispatch(self, request, *args, **kwargs):
+        self.model = self.kwargs['item_model_name']
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self, *args, **kwargs):
+        items = self.model_name.objects.all()
         return items
