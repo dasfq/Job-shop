@@ -1,19 +1,23 @@
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView, UpdateView, CreateView
+from django.views.generic import ListView, DetailView, View
 
 from main.models import Category, Item
 
-def index(request):
-    template_name = 'index.html'
-    context = {
-        'user': request.user
-    }
-    return render(request, template_name, context)
+class IndexView(ListView):
+    template_name = 'main/index.html'
+    context_object_name = 'items_list'
+
+    def get_queryset(self):
+        qt = []
+        for cls in Item.__subclasses__():
+            newest = cls.objects.order_by('-id')[:5]
+            qt.extend(newest)
+        return qt
 
 
 class ItemDetail(DetailView):
     context_object_name = 'item'
-    template_name = 'item_detail.html'
+    template_name = 'main/item_detail.html'
     slug_url_kwarg = 'item_slug'
     slug_field = 'slug'
 
@@ -33,7 +37,7 @@ class ItemDetail(DetailView):
 
 
 class ItemList(ListView):
-    template_name = 'items_list.html'
+    template_name = 'main/items_list.html'
     context_object_name = 'items_list'
 
     def dispatch(self, request, *args, **kwargs):
@@ -42,8 +46,3 @@ class ItemList(ListView):
             if model.objects.filter(category__item_model_name=model_name):
                 self.model = model
                 return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self, *args, **kwargs):
-        items = self.model.objects.all()
-        print(items)
-        return items
