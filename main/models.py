@@ -196,9 +196,15 @@ class Item(models.Model):
     slug = models.SlugField(unique=True, default='')
     description = models.CharField(max_length=100, verbose_name='Описание товара', blank=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
+    discount_price = models.DecimalField(max_digits=9,
+                                         decimal_places=2,
+                                         verbose_name="Цена со скидкой",
+                                         blank=True,
+                                         null=True)
     in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
     image = GenericRelation(ItemPicture)
     parameter = GenericRelation(ItemParameter)
+
 
     @classmethod
     def items_count(cls):
