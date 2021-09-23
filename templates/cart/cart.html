@@ -1,10 +1,40 @@
 {% extends 'elements/base.html' %}
 
-
-
 {% block content %}
- {% for item in cart.ordered_items.all %}
-    {{ item.content_object }}
-    {{ item.quantity }}
- {% endfor %}
+
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Наименование</th>
+      <th scope="col">Изображение товара</th>
+      <th scope="col">Цена</th>
+      <th scope="col">Количество</th>
+      <th scope="col">Стоимость</th>
+    </tr>
+  </thead>
+  <tbody>
+
+   {% for item in cart.ordered_items.all %}
+        <tr>
+          <th scope="row">
+              <a href="{% url 'item_detail' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}">
+                {{ item.content_object }}
+              </a>
+          </th>
+          <td>
+            <img class="card-img-top mb-5 mb-md-0" src="{{ item.content_object.image.firs.image.url }}" alt="..." />
+          </td>
+            {% if item.content_object.discount_price %}
+          <td>{{ item.content_object.discount_price }}</td>
+            {% else %}
+          <td>{{ item.content_object.price }}</td>
+            {% endif %}
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.position_cost }}</td>
+        </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
 {% endblock content %}

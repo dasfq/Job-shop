@@ -1,4 +1,5 @@
-from .models import Category, Item
+from .models import Category, Customer
+from cart.models import Order
 
 def categories(request):
     """
@@ -9,9 +10,7 @@ def categories(request):
     qt = Category.objects.all()
     return {"categories": qt}
 
-    # cat_list = []
-    # qt = Category.objects.all()
-    # for item_class in Item.__subclasses__():
-    #     cat = qt.get(slug=f'{item_class.__name__.lower()}' + 's')
-    #     cat.items_number = len(item_class.objects.all())
-    #     cat_list.append(cat)
+def cart(request):
+    customer = Customer.objects.get(user=request.user)
+    cart = Order.objects.get(customer=customer)
+    return {'cartt': cart}

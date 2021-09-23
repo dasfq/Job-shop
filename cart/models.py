@@ -25,6 +25,10 @@ class Order(models.Model):
         default=StatusChoices.CART)
     delivery_date = models.DateField(blank=True, null=True, verbose_name='Дата достаки')
 
+    @property
+    def items_count(self):
+        return self.ordered_items.count()
+
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = "Заказы"
@@ -41,6 +45,10 @@ class OrderInfo(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1, null=True, blank=True)
+
+    @property
+    def position_cost(self):
+        return self.content_object.price * self.quantity
 
     class Meta:
         verbose_name = 'Заказанная позиция'
