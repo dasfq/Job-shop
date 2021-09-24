@@ -7,7 +7,6 @@ from cart.forms import OrderFormSet, OrderForm
 
 
 class AddToCart(View):
-    form_class = OrderForm
 
     def get(self, request, *args, **kwargs):
         """
@@ -36,13 +35,17 @@ class CartDetail(View):
     template_name = 'cart/cart.html'
 
     def get(self, request, *args, **kwargs):
-        # customer, is_created = Customer.objects.get_or_create(user=request.user)
-        # cart, is_created = Order.objects.get_or_create(customer=customer, status="cart")
-        # context = {
-        #     'cart': cart,
-        # }
         return render(request, template_name=self.template_name, context={})
 
+class CartDeleteItem(View):
+
+    def get(self, request, *args, **kwargs):
+        customer = Customer.objects.get(user=request.user)
+        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
+        position = OrderInfo.objects.get(id=kwargs['id'], order=cart)
+        position.delete()
+        cart.save()
+        return HttpResponseRedirect(reverse('cart'))
 
 class OrderCreate(CreateView):
     model = Order

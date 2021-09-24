@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <table class="table">
+    <table class="table table-hover">
   <thead>
     <tr>
       <th scope="col">Наименование</th>
@@ -10,6 +10,7 @@
       <th scope="col">Цена</th>
       <th scope="col">Количество</th>
       <th scope="col">Стоимость</th>
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody>
@@ -31,9 +32,19 @@
             {% endif %}
           <td>{{ item.quantity }}</td>
           <td>{{ item.position_cost }}</td>
+          <td><a href="{% url 'cart_delete_item' id=item.id %}">
+              <button class="btn btn-danger">х</button>
+          </a></td>
         </tr>
     {% endfor %}
-       <tr>{{ cart.total_cost }}</tr>
+   <tfoot>
+       <tr class="table-primary">
+           <td colspan="2"></td>
+           <td><strong>Итого:</strong></td>
+           <td><strong>{{ cart.total_qty }}</strong></td>
+           <td><strong>{{ cart.total_cost }}</strong></td>
+       </tr>
+    </tfoot>
 
   </tbody>
 </table>

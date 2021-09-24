@@ -24,11 +24,8 @@ class Order(models.Model):
         max_length=10,
         default=StatusChoices.CART)
     delivery_date = models.DateField(blank=True, null=True, verbose_name='Дата достаки')
-    total_cost = models.PositiveIntegerField(default=0, verbose_name='Сумма заказа')
-
-    @property
-    def items_count(self):
-        return self.ordered_items.count()
+    total_cost = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Сумма заказа')
+    total_qty = models.PositiveIntegerField(default=0, verbose_name='Общее кол-во товара')
 
     def save(self, *args, **kwargs):
         """
@@ -37,9 +34,13 @@ class Order(models.Model):
         :param kwargs:
         :return:
         """
-        total_cost = self.ordered_items.aggregate(sum=models.Sum('position_cost'))
-        if total_cost.get('sum'):
-            self.total_cost = total_cost.get('sum')
+        cart_data = self.ordered_items.aggregate(sum=models.Sum('position_cost'), qty=models.Sum('quantity'))
+        if cart_data.get('sum'):
+            self.total_cost = cart_data.get('sum')
+        else:self.total_cost = 0
+        if cart_data.get('qty'):
+            self.total_qty = cart_data.get('qty')
+        else:self.total_qty = 0
         super().save(*args, **kwargs)
 
     class Meta:
@@ -58,7 +59,7 @@ class OrderInfo(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1, null=True, blank=True)
-    position_cost = models.PositiveIntegerField(default=0)
+    position_cost = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Стоимость позиции')
 
     def save(self, *args, **kwargs):
         """
