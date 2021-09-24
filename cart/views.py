@@ -4,9 +4,10 @@ from django.views.generic import CreateView, View, DetailView, ListView
 from cart.models import *
 from main.models import *
 from cart.forms import OrderFormSet, OrderForm
+from cart.mixins import CartMixin
 
 
-class AddToCart(View):
+class AddToCart(CartMixin, View):
 
     def get(self, request, *args, **kwargs):
         """
@@ -18,27 +19,28 @@ class AddToCart(View):
         """
         item_model_name = kwargs['item_model_name']
         item_slug = kwargs['item_slug']
-        customer = Customer.objects.get(user=request.user)
-        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
         ct = ContentType.objects.get(app_label='main', model=item_model_name)
         item = ct.get_object_for_this_type(slug=item_slug)
-        cart_item, is_created = OrderInfo.objects.get_or_create(content_type=ct, object_id = item.id, order=cart)
+        cart_item, is_created = OrderInfo.objects.get_or_create(content_type=ct, object_id = item.id, order=self.cart)
         if not is_created:
             cart_item.quantity += 1
             cart_item.save()
-        cart.save()
+        self.cart.save()
         return HttpResponseRedirect(redirect_to=request.GET.get('next'))
 
 
 
-class CartDetail(View):
+class CartDetail(CartMixin, View):
     template_name = 'cart/cart.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, template_name=self.template_name, context={})
+        context = {
+            'cart': self.cart
+        }
+        return render(request, template_name=self.template_name, context=context)
 
 
-class CartChange(View):
+class CartChange(CartMixin, View):
 
     def post(self, request, *args, **kwargs):
         qty = request.POST.get('qty')
@@ -46,37 +48,30 @@ class CartChange(View):
         model_name = kwargs['model_name']
         ct = ContentType.objects.get(app_label='main', model=model_name)
         item = ct.get_object_for_this_type(slug=item_slug)
-        customer = Customer.objects.get(user=request.user)
-        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
-        position = OrderInfo.objects.get(order=cart, content_type=ct, object_id=item.id)
+        position = OrderInfo.objects.get(order=self.cart, content_type=ct, object_id=item.id)
         position.quantity = qty
         position.save()
-        cart.save()
+        self.cart.save()
         return HttpResponseRedirect(reverse('cart'))
 
 
-class CartDeleteItem(View):
+class CartDeleteItem(CartMixin, View):
 
     def get(self, request, *args, **kwargs):
-        customer = Customer.objects.get(user=request.user)
-        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
-        position = OrderInfo.objects.get(id=kwargs['id'], order=cart)
+        position = OrderInfo.objects.get(id=kwargs['id'], order=self.cart)
         position.delete()
-        cart.save()
+        self.cart.save()
         return HttpResponseRedirect(reverse('cart'))
 
-class OrderCreate(View):
+class OrderCreate(CartMixin, View):
     model = Order
     form_class = OrderFormSet
     context_object_name = 'order'
 
     def get(self, request, *args, **kwargs):
-        print(12312312312312312312)
-        customer = Customer.objects.get(user=request.user)
-        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
-        cart.status = 'new'
-        cart.save()
-        return HttpResponseRedirect(reverse('order_detail', kwargs={'pk': cart.id}))
+        self.cart.status = 'new'
+        self.cart.save()
+        return HttpResponseRedirect(reverse('order_detail', kwargs={'pk': self.cart.id}))
 
 class OrderDetail(DetailView):
     model = Order

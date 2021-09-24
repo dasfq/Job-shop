@@ -11,9 +11,11 @@ def categories(request):
     return {"categories": qt}
 
 def cart(request):
+    """
+    Чтобы в панели навигации на кнопке "Корзина" высчитывалось кол-во товара
+    :param request:
+    :return:
+    """
     customer = Customer.objects.get(user=request.user)
-    try:
-        cart = Order.objects.get(customer=customer, status='cart')
-    except:
-        cart = None
+    cart,is_created = Order.objects.get_or_create(customer=customer, status='cart')
     return {'cart': cart}

@@ -15,6 +15,7 @@ class Order(models.Model):
         SENT = 'sent', "Отправлен"
         DELIVERED = 'delivered', "Доставлен"
         CANCELED = 'canceled', "Отменён"
+        FOR_ANONYMOUS = 'anonymous', "Аноним"
 
     customer = models.ForeignKey(Customer, verbose_name='Покупатель', related_name='orders', on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
