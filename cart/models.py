@@ -68,7 +68,7 @@ class OrderInfo(models.Model):
         :param kwargs:
         :return:
         """
-        self.position_cost = self.content_object.price * self.quantity
+        self.position_cost = self.content_object.price * int(self.quantity)
         super().save(*args, **kwargs)
 
     class Meta:

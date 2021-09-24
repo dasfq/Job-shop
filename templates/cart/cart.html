@@ -3,6 +3,8 @@
 
 {% block content %}
 
+    <h3 class="text-center mb-5 mt-5">Ваша корзина {% if not cart.total_qty %}пуста{% endif %}</h3>
+
     <table class="table table-hover">
   <thead>
     <tr>
@@ -31,7 +33,13 @@
             {% else %}
           <td>{{ item.content_object.price|currency:'rub'  }}</td>
             {% endif %}
-          <td>{{ item.quantity }}</td>
+          <td>
+              <form action="{% url 'cart_change_qty' model_name=item.content_object.model_name item_slug=item.content_object.slug %}" method="POST" style="display:inline-flex">
+                  {% csrf_token %}
+                  <input type="number" name="qty" class="form-control" style="width:70px" min="1" value="{{ item.quantity }}">
+                  <input type="submit" class="button btn-primary form-control" value="V">
+              </form>
+          </td>
           <td>{{ item.position_cost|currency:'rub' }}</td>
           <td><a href="{% url 'cart_delete_item' id=item.id %}">
               <button class="btn btn-danger">х</button>

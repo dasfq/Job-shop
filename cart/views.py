@@ -37,6 +37,24 @@ class CartDetail(View):
     def get(self, request, *args, **kwargs):
         return render(request, template_name=self.template_name, context={})
 
+
+class CartChange(View):
+
+    def post(self, request, *args, **kwargs):
+        qty = request.POST.get('qty')
+        item_slug = kwargs['item_slug']
+        model_name = kwargs['model_name']
+        ct = ContentType.objects.get(app_label='main', model=model_name)
+        item = ct.get_object_for_this_type(slug=item_slug)
+        customer = Customer.objects.get(user=request.user)
+        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
+        position = OrderInfo.objects.get(order=cart, content_type=ct, object_id=item.id)
+        position.quantity = qty
+        position.save()
+        cart.save()
+        return HttpResponseRedirect(reverse('cart'))
+
+
 class CartDeleteItem(View):
 
     def get(self, request, *args, **kwargs):
