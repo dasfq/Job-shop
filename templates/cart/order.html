@@ -16,7 +16,7 @@
   </thead>
   <tbody>
 
-   {% for item in cart.ordered_items.all %}
+   {% for item in order.ordered_items.all %}
         <tr>
           <th scope="row">
               <a href="{% url 'item_detail' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}">
@@ -33,29 +33,28 @@
             {% endif %}
           <td>{{ item.quantity }}</td>
           <td>{{ item.position_cost|currency:'rub' }}</td>
-          <td><a href="{% url 'cart_delete_item' id=item.id %}">
-              <button class="btn btn-danger">х</button>
-          </a></td>
         </tr>
     {% endfor %}
    <tfoot>
        <tr class="table-primary">
            <td colspan="2"></td>
            <td><strong>Итого:</strong></td>
-           <td><strong>{{ cart.total_qty }}</strong></td>
-           <td><strong>{{ cart.total_cost|currency:'rub'  }}</strong></td>
+           <td><strong>{{ order.total_qty }}</strong></td>
+           <td><strong>{{ order.total_cost|currency:'rub'  }}</strong></td>
        </tr>
       <tr>
        <td colspan="4"></td>
-       <td>
-           <a href="{% url 'order_create'  id=cart.id %}">
-              <button class="btn btn-danger">Оформить заказ</button>
-          </a>
-       </td>
       </tr>
     </tfoot>
 
   </tbody>
 </table>
+
+
+<form method="POST">
+
+    {{ form.as_p }}
+    {% csrf_token %}
+</form>
 
 {% endblock content %}

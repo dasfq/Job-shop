@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponseRedirect
-from django.views.generic import CreateView, View
+from django.views.generic import CreateView, View, DetailView, ListView
 
 from cart.models import *
 from main.models import *
@@ -47,11 +47,34 @@ class CartDeleteItem(View):
         cart.save()
         return HttpResponseRedirect(reverse('cart'))
 
-class OrderCreate(CreateView):
+class OrderCreate(View):
     model = Order
-    success_url = '/'
     form_class = OrderFormSet
-    template_name = 'cart/order_create.html'
+    context_object_name = 'order'
+
+    def get(self, request, *args, **kwargs):
+        print(12312312312312312312)
+        customer = Customer.objects.get(user=request.user)
+        cart, is_created = Order.objects.get_or_create(customer=customer, status='cart')
+        cart.status = 'new'
+        cart.save()
+        return HttpResponseRedirect(reverse('order_detail', kwargs={'pk': cart.id}))
+
+class OrderDetail(DetailView):
+    model = Order
+    template_name = 'cart/order.html'
+    # form_class = OrderForm
+    context_object_name = 'order'
+
+
+class OrderList(ListView):
+    model = Order
+    template_name = 'cart/orders_list.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        customer = Customer.objects.get(user=self.request.user)
+        return Order.objects.filter(customer=customer).exclude(status='cart')
 
 
 

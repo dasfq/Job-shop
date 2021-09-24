@@ -8,13 +8,13 @@ from main.models import *
 class Order(models.Model):
 
     class StatusChoices(models.TextChoices):
-        CART = 'cart', 'корзина'
-        NEW = 'new', 'новый'
-        CONFIRMED = 'confirmed', "подтверждён"
-        ASSEMBLED = 'assembled', "собран"
-        SENT = 'sent', "отправлен"
-        DELIVERED = 'delivered', "доставлен"
-        CANCELED = 'canceled', "отменён"
+        CART = 'cart', 'Корзина'
+        NEW = 'new', 'Новый'
+        CONFIRMED = 'confirmed', "Подтверждён"
+        ASSEMBLED = 'assembled', "Собран"
+        SENT = 'sent', "Отправлен"
+        DELIVERED = 'delivered', "Доставлен"
+        CANCELED = 'canceled', "Отменён"
 
     customer = models.ForeignKey(Customer, verbose_name='Покупатель', related_name='orders', on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)

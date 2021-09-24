@@ -13,7 +13,7 @@ def categories(request):
 def cart(request):
     customer = Customer.objects.get(user=request.user)
     try:
-        cart = Order.objects.get(customer=customer)
+        cart = Order.objects.get(customer=customer, status='cart')
     except:
         cart = None
     return {'cart': cart}
