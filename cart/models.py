@@ -24,10 +24,23 @@ class Order(models.Model):
         max_length=10,
         default=StatusChoices.CART)
     delivery_date = models.DateField(blank=True, null=True, verbose_name='Дата достаки')
+    total_cost = models.PositiveIntegerField(default=0, verbose_name='Сумма заказа')
 
     @property
     def items_count(self):
         return self.ordered_items.count()
+
+    def save(self, *args, **kwargs):
+        """
+        Пересчитывает общую стоимость всех позиции в Order и сохраняет.
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        total_cost = self.ordered_items.aggregate(sum=models.Sum('position_cost'))
+        if total_cost.get('sum'):
+            self.total_cost = total_cost.get('sum')
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Заказ'
@@ -45,10 +58,17 @@ class OrderInfo(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     quantity = models.PositiveIntegerField(verbose_name='Количество', default=1, null=True, blank=True)
+    position_cost = models.PositiveIntegerField(default=0)
 
-    @property
-    def position_cost(self):
-        return self.content_object.price * self.quantity
+    def save(self, *args, **kwargs):
+        """
+        Пересчитывает цену по позиции в корзине и сохраняет объект этой позиции.
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        self.position_cost = self.content_object.price * self.quantity
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Заказанная позиция'

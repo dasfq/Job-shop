@@ -12,5 +12,8 @@ def categories(request):
 
 def cart(request):
     customer = Customer.objects.get(user=request.user)
-    cart = Order.objects.get(customer=customer)
-    return {'cartt': cart}
+    try:
+        cart = Order.objects.get(customer=customer)
+    except:
+        cart = None
+    return {'cart': cart}

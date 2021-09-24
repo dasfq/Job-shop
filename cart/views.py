@@ -1,5 +1,5 @@
-from django.shortcuts import render, HttpResponseRedirect, reverse
-from django.views.generic import DetailView, ListView, CreateView, UpdateView, View
+from django.shortcuts import render, HttpResponseRedirect
+from django.views.generic import CreateView, View
 
 from cart.models import *
 from main.models import *
@@ -10,6 +10,13 @@ class AddToCart(View):
     form_class = OrderForm
 
     def get(self, request, *args, **kwargs):
+        """
+        Добавляет OrderInfo в Order. При этом изменяет количество и сохраняет объект.
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
         item_model_name = kwargs['item_model_name']
         item_slug = kwargs['item_slug']
         customer = Customer.objects.get(user=request.user)
@@ -20,6 +27,7 @@ class AddToCart(View):
         if not is_created:
             cart_item.quantity += 1
             cart_item.save()
+        cart.save()
         return HttpResponseRedirect(redirect_to=request.GET.get('next'))
 
 
@@ -28,12 +36,12 @@ class CartDetail(View):
     template_name = 'cart/cart.html'
 
     def get(self, request, *args, **kwargs):
-        customer, is_created = Customer.objects.get_or_create(user=request.user)
-        cart, is_created = Order.objects.get_or_create(customer=customer, status="cart")
-        context = {
-            'cart': cart,
-        }
-        return render(request, template_name=self.template_name, context=context)
+        # customer, is_created = Customer.objects.get_or_create(user=request.user)
+        # cart, is_created = Order.objects.get_or_create(customer=customer, status="cart")
+        # context = {
+        #     'cart': cart,
+        # }
+        return render(request, template_name=self.template_name, context={})
 
 
 class OrderCreate(CreateView):
