@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from main import views
-from cart.views import AddToCart, CartDetail, CartDeleteItem, OrderCreate, OrderDetail, OrderList, CartChange
+from cart.views import AddToCart, CartDetail, CartDeleteItem, OrderCheckout, OrderDetail, OrderList, CartChange, OrderEdit
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='main'),
@@ -14,6 +14,7 @@ urlpatterns = [
     path('cart/', CartDetail.as_view(), name='cart'),
 
     path('orders/', OrderList.as_view(), name='orders_list'),
-    path('order/create/<int:id>/', OrderCreate.as_view(), name='order_create'),
     path('order/<int:pk>/', OrderDetail.as_view(), name='order_detail'),
+    path('order/edit/<int:pk>/', OrderEdit.as_view(), name='order_edit'),
+    path('order/checkout/<int:pk>/', OrderCheckout.as_view(), name='order_checkout'),
 ]

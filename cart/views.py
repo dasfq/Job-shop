@@ -1,9 +1,10 @@
 from django.shortcuts import render, HttpResponseRedirect
-from django.views.generic import CreateView, View, DetailView, ListView
+from django.views.generic import View, ListView, UpdateView, DetailView
+from django.db import transaction
 
 from cart.models import *
 from main.models import *
-from cart.forms import OrderFormSet, OrderForm
+from cart.forms import OrderForm
 from cart.mixins import CartMixin
 
 
@@ -63,22 +64,6 @@ class CartDeleteItem(CartMixin, View):
         self.cart.save()
         return HttpResponseRedirect(reverse('cart'))
 
-class OrderCreate(CartMixin, View):
-    model = Order
-    form_class = OrderFormSet
-    context_object_name = 'order'
-
-    def get(self, request, *args, **kwargs):
-        self.cart.status = 'new'
-        self.cart.save()
-        return HttpResponseRedirect(reverse('order_detail', kwargs={'pk': self.cart.id}))
-
-class OrderDetail(DetailView):
-    model = Order
-    template_name = 'cart/order.html'
-    # form_class = OrderForm
-    context_object_name = 'order'
-
 
 class OrderList(ListView):
     model = Order
@@ -90,4 +75,45 @@ class OrderList(ListView):
         return Order.objects.filter(customer=customer).exclude(status='cart')
 
 
+class OrderEdit(CartMixin, View):
+    template_name = 'cart/order_edit.html'
+    model = Order
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.cart
+        context = self.get_context_data(**kwargs)
+        return render(request, template_name=self.template_name, context=context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_form = OrderForm(instance=self.object)
+        context['order'] = self.cart
+        context['form'] = order_form
+        return context
+
+
+class OrderCheckout(CartMixin, UpdateView):
+    model = Order
+    context_object_name = 'order'
+    form_class = OrderForm
+    template_name = 'cart/order_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order'] = self.object
+        return context
+
+    @transaction.atomic
+    def form_valid(self, form):
+        self.object.status = 'new'
+        super().form_valid(form)
+        return HttpResponseRedirect(reverse('order_detail', kwargs={'pk': self.object.pk}))
+
+    def form_invalid(self, form):
+        return render(self.request, 'cart/order_edit.html', context=self.get_context_data())
+
+
+class OrderDetail(CartMixin, DetailView):
+    model = Order
+    context_object_name = 'order'
+    template_name = 'cart/order_detail.html'

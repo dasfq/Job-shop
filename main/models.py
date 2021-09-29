@@ -32,6 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         'Unselect this instead of deleting accounts.'
     ),
                                     )
+    is_anonym = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -63,7 +64,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ('email',)
 
 class Customer(models.Model):
-    user = models.ForeignKey(User, related_name='customers', default='', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='customers', default='', on_delete=models.CASCADE)
+    phone_number = models.CharField(verbose_name='Номер телефона', max_length=11, blank=True)
+    adress = models.CharField(verbose_name='Адрес', blank=True, max_length=150)
 
     class Meta:
         verbose_name = 'Покупатель'
@@ -73,17 +76,6 @@ class Customer(models.Model):
         return str(self.user)
 
 
-class Contact(models.Model):
-    customer = models.ForeignKey(Customer, verbose_name='Пользователь',default=None, on_delete=models.CASCADE, related_name='contacts')
-    adress = models.CharField(verbose_name='Адрес', blank=True, max_length=150)
-    phone_number = models.CharField(verbose_name='Телефон', blank=True, max_length=12, unique=True)
-
-    class Meta:
-        verbose_name = "Контактные данные"
-        verbose_name_plural = "Контактные данные"
-
-    def __str__(self):
-        return str(self.pk)
 
 
 class Subscriber(models.Model):

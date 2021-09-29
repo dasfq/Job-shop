@@ -1,9 +1,10 @@
 {% extends 'elements/base.html' %}
 {% load filters %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
-    <h3 class="text-center mb-5 mt-5">Ваша корзина {% if not cart.total_qty %}пуста{% endif %}</h3>
+        <h3 class="text-center mb-5 mt-5">Оформление заказа</h3>
 
     <table class="table table-hover">
   <thead>
@@ -18,7 +19,7 @@
   </thead>
   <tbody>
 
-   {% for item in cart.ordered_items.all %}
+   {% for item in order.ordered_items.all %}
         <tr>
           <th scope="row">
               <a href="{% url 'item_detail' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}">
@@ -33,37 +34,52 @@
             {% else %}
           <td>{{ item.content_object.price|currency:'rub'  }}</td>
             {% endif %}
-          <td>
-              <form action="{% url 'cart_change_qty' model_name=item.content_object.model_name item_slug=item.content_object.slug %}" method="POST" style="display:inline-flex">
-                  {% csrf_token %}
-                  <input type="number" name="qty" class="form-control" style="width:70px" min="1" value="{{ item.quantity }}">
-                  <input type="submit" class="button btn-primary form-control" value="V">
-              </form>
-          </td>
+          <td>{{ item.quantity }}</td>
           <td>{{ item.position_cost|currency:'rub' }}</td>
-          <td><a href="{% url 'cart_delete_item' id=item.id %}">
-              <button class="btn btn-danger">х</button>
-          </a></td>
         </tr>
     {% endfor %}
    <tfoot>
        <tr class="table-primary">
            <td colspan="2"></td>
            <td><strong>Итого:</strong></td>
-           <td><strong>{{ cart.total_qty }}</strong></td>
-           <td><strong>{{ cart.total_cost|currency:'rub'  }}</strong></td>
+           <td><strong>{{ order.total_qty }}</strong></td>
+           <td><strong>{{ order.total_cost|currency:'rub'  }}</strong></td>
        </tr>
       <tr>
        <td colspan="4"></td>
-       <td>
-           <a href="{% url 'order_edit'  pk=cart.id %}">
-              <button class="btn btn-danger">Оформить заказ</button>
-          </a>
-       </td>
       </tr>
     </tfoot>
 
   </tbody>
 </table>
-
+    <hr>
+<table>
+    <tr>
+        <th>Номер заказа: </th>
+        <td>{{ order.id }}</td>
+    </tr>
+    <tr>
+        <th>Статус: </th>
+        <td>{{ order.status|status }}</td>
+    </tr>
+    <tr>
+        <th>Дата доставки: </th>
+        <td>{{ order.delivery_date }}</td>
+    </tr>
+    <tr>
+        <th>Получатель: </th>
+        <td>{{ order.delivery_contact }}</td>
+    </tr>
+    <tr>
+        <th>Телефон: </th>
+        <td>{{ order.delivery_phone }}</td>
+    </tr>
+    <tr>
+        <th>Адресс: </th>
+        <td>{{ order.delivery_adress }}</td>
+    </tr>
+</table>
+    <form action="" method="POST">
+        <input type="submit" value="Оплатить" name="btn-payment" class="button btn-primary form-control" style="width: 300px">
+    </form>
 {% endblock content %}
