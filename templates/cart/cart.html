@@ -1,0 +1,69 @@
+{% extends 'elements/base.html' %}
+{% load filters %}
+
+{% block content %}
+
+    <h3 class="text-center mb-5 mt-5">Ваша корзина {% if not cart.total_qty %}пуста{% endif %}</h3>
+
+    <table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Наименование</th>
+      <th scope="col">Изображение товара</th>
+      <th scope="col">Цена</th>
+      <th scope="col">Количество</th>
+      <th scope="col">Стоимость</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+
+   {% for item in cart.ordered_items.all %}
+        <tr>
+          <th scope="row">
+              <a href="{% url 'item_detail' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}">
+                {{ item.content_object }}
+              </a>
+          </th>
+          <td>
+            <img class="card-img-top mb-5 mb-md-0" src="{{ item.content_object.image.firs.image.url }}" alt="..." />
+          </td>
+            {% if item.content_object.discount_price %}
+          <td>{{ item.content_object.discount_price|currency:'rub' }}</td>
+            {% else %}
+          <td>{{ item.content_object.price|currency:'rub'  }}</td>
+            {% endif %}
+          <td>
+              <form action="{% url 'cart_change_qty' model_name=item.content_object.model_name item_slug=item.content_object.slug %}" method="POST" style="display:inline-flex">
+                  {% csrf_token %}
+                  <input type="number" name="qty" class="form-control" style="width:70px" min="1" value="{{ item.quantity }}">
+                  <input type="submit" class="button btn-primary form-control" value="V">
+              </form>
+          </td>
+          <td>{{ item.position_cost|currency:'rub' }}</td>
+          <td><a href="{% url 'cart_delete_item' id=item.id %}">
+              <button class="btn btn-danger">х</button>
+          </a></td>
+        </tr>
+    {% endfor %}
+   <tfoot>
+       <tr class="table-primary">
+           <td colspan="2"></td>
+           <td><strong>Итого:</strong></td>
+           <td><strong>{{ cart.total_qty }}</strong></td>
+           <td><strong>{{ cart.total_cost|currency:'rub'  }}</strong></td>
+       </tr>
+      <tr>
+       <td colspan="4"></td>
+       <td>
+           <a href="{% url 'order_edit'  pk=cart.id %}">
+              <button class="btn btn-danger">Оформить заказ</button>
+          </a>
+       </td>
+      </tr>
+    </tfoot>
+
+  </tbody>
+</table>
+
+{% endblock content %}

@@ -19,3 +19,15 @@ def discount(value, discount):
     '''
     price = float(value)/(1-discount/100)
     return int(math.ceil(price/100))*100
+
+@register.filter
+def status(value):
+    choices = {
+    'new': 'Новый',
+    'confirmed': "Подтверждён",
+    'assembled': "Собран",
+    'sent': "Отправлен",
+    'delivered': "Доставлен",
+    'canceled': "Отменён",
+    }
+    return choices[value]

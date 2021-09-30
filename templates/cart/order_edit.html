@@ -1,0 +1,72 @@
+{% extends 'elements/base.html' %}
+{% load filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+        <h3 class="text-center mb-5 mt-5">Оформление заказа</h3>
+
+    <table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Наименование</th>
+      <th scope="col">Изображение товара</th>
+      <th scope="col">Цена</th>
+      <th scope="col">Количество</th>
+      <th scope="col">Стоимость</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+
+   {% for item in order.ordered_items.all %}
+        <tr>
+          <th scope="row">
+              <a href="{% url 'item_detail' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}">
+                {{ item.content_object }}
+              </a>
+          </th>
+          <td>
+            <img class="card-img-top mb-5 mb-md-0" src="{{ item.content_object.image.firs.image.url }}" alt="..." />
+          </td>
+            {% if item.content_object.discount_price %}
+          <td>{{ item.content_object.discount_price|currency:'rub' }}</td>
+            {% else %}
+          <td>{{ item.content_object.price|currency:'rub'  }}</td>
+            {% endif %}
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.position_cost|currency:'rub' }}</td>
+        </tr>
+    {% endfor %}
+   <tfoot>
+       <tr class="table-primary">
+           <td colspan="2"></td>
+           <td><strong>Итого:</strong></td>
+           <td><strong>{{ order.total_qty }}</strong></td>
+           <td><strong>{{ order.total_cost|currency:'rub'  }}</strong></td>
+       </tr>
+      <tr>
+       <td colspan="4"></td>
+      </tr>
+    </tfoot>
+
+  </tbody>
+</table>
+    <hr>
+
+    <h3 class="text-center mb-5 mt-5">Форма заказа</h3>
+
+<form action="{% url 'order_checkout' pk=order.pk %}" method="POST">
+    {% csrf_token %}
+
+    {% for field in form %}'
+        <div>
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+        </div>
+    {% endfor %}
+    <input type="submit" class="button btn-primary form-control"  value="Завершить заказ" style="width: 300px">
+</form>
+
+{% endblock content %}

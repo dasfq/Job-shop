@@ -4,14 +4,16 @@ from django.contrib.contenttypes.admin import GenericStackedInline
 from django.forms import ModelMultipleChoiceField, ModelChoiceField
 from .models import *
 
+class UserAdmin(admin.ModelAdmin):
+    exclude = ('is_anonym',)
 
 class ContactInline(admin.TabularInline):
-    model = Contact
+    # model = Contact
     extra = 1
 
 
-class CustomerAdmin(admin.ModelAdmin):
-    inlines = [ContactInline,]
+# class CustomerAdmin(admin.ModelAdmin):
+    # inlines = [ContactInline,]
 
 
 class ParameterInline(admin.StackedInline):
@@ -104,7 +106,9 @@ class FridgeAdmin(admin.ModelAdmin):
 # ItemMaker(Notebook, Phone, Fridge)
 
 
-admin.site.register(Customer, CustomerAdmin)
+# admin.site.register(Customer, CustomerAdmin)
+admin.site.register(Customer)
+admin.site.register(User, UserAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Subscriber)
 admin.site.register(Parameter)
