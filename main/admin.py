@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from django.contrib.contenttypes.admin import GenericStackedInline
 from django.forms import ModelMultipleChoiceField, ModelChoiceField
-from .models import *
+from cart.models import *
+from main.models import *
 
 class UserAdmin(admin.ModelAdmin):
     exclude = ('is_anonym',)
@@ -119,4 +120,4 @@ admin.site.register(Brand)
 admin.site.register(Notebook, NotebookAdmin)
 admin.site.register(Phone, PhoneAdmin)
 admin.site.register(Fridge, FridgeAdmin)
-
+admin.site.register(Favourite)

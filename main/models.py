@@ -231,6 +231,15 @@ class Item(models.Model):
         return f'{self.brand} {self.model}'
 
 
+class Favourite(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name='Покупатель')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные товары'
 
 
 class Tag(models.Model):
