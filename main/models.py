@@ -1,10 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, Group, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator as username_validator
-from django.template.defaultfilters import slugify
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-
+from django.urls import reverse
 
 
 from .managers import CustomUserManager
@@ -99,30 +98,38 @@ class Subscriber(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=15)
-    slug = models.SlugField(unique=True, default='')
+    name = models.CharField(max_length=15, verbose_name="Имя")
+    item_model_name = models.CharField(unique=True, default='', max_length=15, verbose_name="Имя модели с товаром")
+
+    @property
+    def items_qty(self):
+        """
+        Количество товара в них для вывода в Каталоге.
+        self.slug.rstrip('s') - имя товара - подстрока, которая содержится в related_name m2m поля.
+        :return:
+        """
+        item_models = [
+            f for f in self._meta.related_objects
+            if self.item_model_name.lower() in f.name
+        ]
+        count = getattr(self, item_models[0].name).count()
+        return count
 
 
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-        # задаёт ограничение уникальности для данных полей.
-        # constraints = [
-        #     models.UniqueConstraint(fields=['parameters.name'], name='unique_item')
-        # ]
-
     def __str__(self):
         return str(self.name)
 
-    def save(self, *args, **kwargs):
-        """Переопределение метода save() с добавлением генерации значения для поля :param slug.
+    def get_absolute_url(self):
         """
-
-        if self.slug is None:
-            self.slug = slugify(self.name)
-        return super().save(self, *args, **kwargs)
-
+        Функция определения url к объекту :class:'Category'
+        :return: url к объекту :class:'Category'
+        :rtype: str, optional
+        """
+        return reverse('items_list', kwargs={'item_model_name': self.item_model_name})
 
 
 class Brand(models.Model):
@@ -189,9 +196,19 @@ class Item(models.Model):
     slug = models.SlugField(unique=True, default='')
     description = models.CharField(max_length=100, verbose_name='Описание товара', blank=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
+    discount_price = models.DecimalField(max_digits=9,
+                                         decimal_places=2,
+                                         verbose_name="Цена со скидкой",
+                                         blank=True,
+                                         null=True)
     in_stock_qty = models.PositiveIntegerField(verbose_name='Количество товара',default=0)
     image = GenericRelation(ItemPicture)
     parameter = GenericRelation(ItemParameter)
+
+
+    @classmethod
+    def items_count(cls):
+        return cls.objects.count()
 
     def get_parameters_list(self):
         '''

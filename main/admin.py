@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from django.contrib.contenttypes.admin import GenericStackedInline
 from django.forms import ModelMultipleChoiceField, ModelChoiceField
-import os
 from .models import *
 
 
@@ -19,10 +18,10 @@ class ParameterInline(admin.StackedInline):
     model = Parameter.category.through
     extra = 3
 
-
 class CategoryAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
+    prepopulated_fields = {'item_model_name': ('name',)}
     inlines = [ParameterInline,]
+    exclude = ('items_number',)
 
 
 class ItemParameterInline(GenericStackedInline):
@@ -39,9 +38,9 @@ class ItemParameterInline(GenericStackedInline):
         :param kwargs:
         :return:
         """
-        category = request.path.split('/')[3]+'s'
+        category = request.path.split('/')[3]
         if db_field.name == 'parameter':
-            return ModelChoiceField(Parameter.objects.filter(category__slug=category))
+            return ModelChoiceField(Parameter.objects.filter(category__item_model_name=category.capitalize()))
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -57,15 +56,15 @@ class NotebookAdmin(admin.ModelAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         """
-        Перед тем как отобразить на странице поле функция проверяет его и фильтрует его значения в раскрывающемся списке.
+        Перед тем как отобразить поле на странице функция проверяет его и фильтрует его значения в раскрывающемся списке.
         :param db_field:
         :param request:
         :param kwargs:
         :return:
         """
-        slug_name = request.path.split('/')[3]+'s'
+        cat_name = request.path.split('/')[3].capitalize()
         if db_field.name == 'category':
-            return ModelMultipleChoiceField(Category.objects.filter(slug=slug_name))
+            return ModelMultipleChoiceField(Category.objects.filter(item_model_name=cat_name))
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -76,9 +75,9 @@ class PhoneAdmin(admin.ModelAdmin):
     inlines = [ItemPictureInline, ItemParameterInline,]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        slug_name = request.path.split('/')[3]+'s'
+        cat_name = request.path.split('/')[3].capitalize()
         if db_field.name == 'category':
-            return ModelMultipleChoiceField(Category.objects.filter(slug=slug_name))
+            return ModelMultipleChoiceField(Category.objects.filter(item_model_name=cat_name))
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -89,9 +88,9 @@ class FridgeAdmin(admin.ModelAdmin):
     inlines = [ItemPictureInline, ItemParameterInline,]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        slug_name = request.path.split('/')[3]+'s'
+        cat_name = request.path.split('/')[3].capitalize()
         if db_field.name == 'category':
-            return ModelMultipleChoiceField(Category.objects.filter(slug=slug_name))
+            return ModelMultipleChoiceField(Category.objects.filter(item_model_name=cat_name))
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 # def ItemMaker(*args, **kwargs):
