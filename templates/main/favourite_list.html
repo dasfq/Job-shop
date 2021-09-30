@@ -1,4 +1,11 @@
+{%  extends 'elements/base.html' %}
+{% load static %}
 {% load filters %}
+
+
+{% block content %}
+
+    {% load filters %}
 
        <section class="py-5">
                 <div class="container px-4 px-lg-5 mt-5">
@@ -8,8 +15,8 @@
                             <div class="card h-100">
 
                                 <!-- Product image-->
-                                {% for image in item.image.all %}
-                                    <a  href="{% url 'item_detail' item_model_name=item.model_name item_slug=item.slug %}">
+                                {% for image in item.content_object.image.all %}
+                                    <a  href="{% url 'item_detail' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}">
                                     <img class="card-img-top" src="{{ image.image.url }}" alt="..." />
                                     </a>
                                 {% endfor %}
@@ -17,17 +24,17 @@
                                 <div class="card-body p-4">
                                     <div class="text-center">
                                         <!-- Product name-->
-                                        <h5 class="fw-bolder">{{ item }}</h5>
+                                        <h5 class="fw-bolder">{{ item.content_object }}</h5>
 
                                         <!-- Product price-->
                                         <div class="fs-5 mb-5">
-                                            {% if item.discount_price %}
+                                            {% if item.content_object.discount_price %}
                                             <!-- Sale badge-->
                                             <div class="badge bg-warning text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>
-                                            <span class="text-decoration-line-through">{{ item.price|currency:'rub' }}</span>
-                                            <span>{{ item.discount_price|currency:'rub' }}</span>
+                                            <span class="text-decoration-line-through">{{ item.content_object.price|currency:'rub' }}</span>
+                                            <span>{{ item.content_object.discount_price|currency:'rub' }}</span>
                                              {% else %}
-                                             <span>{{ item.price|currency:'rub' }}</span>
+                                             <span>{{ item.content_object.price|currency:'rub' }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -35,10 +42,10 @@
                                 <!-- Product actions-->
                                 <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                                     <div class="text-center">
-                                        <a class="btn btn-outline-dark mt-auto" href="{% url 'add_to_cart' item_model_name=item.model_name item_slug=item.slug %}?next={{ request.path }}">
+                                        <a class="btn btn-outline-dark mt-auto" href="{% url 'add_to_cart' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}?next={{ request.path }}">
                                             Купить
                                         </a>
-                                        <a class="btn btn-outline-dark mt-auto" href="{% url 'add_to_fav' item_model_name=item.model_name item_slug=item.slug %}?next={{ request.path }}">
+                                        <a class="btn btn-outline-dark mt-auto" href="{% url 'add_to_fav' item_model_name=item.content_object.model_name item_slug=item.content_object.slug %}?next={{ request.path }}">
                                             &#9829;
                                         </a>
                                     </div>
@@ -49,3 +56,5 @@
                     </div>
                 </div>
         </section>
+
+{% endblock content %}

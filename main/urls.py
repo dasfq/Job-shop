@@ -1,10 +1,13 @@
 from django.urls import path, include
 
 from main import views
-from cart.views import AddToCart, CartDetail, CartDeleteItem, OrderCheckout, OrderDetail, OrderList, CartChange, OrderEdit
+from cart.views import AddToCart, CartDetail, CartDeleteItem, OrderCheckout, OrderDetail, OrderList, CartChange,\
+    OrderEdit
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='main'),
+    path('items/favourite/', views.FavouriteList.as_view(), name='favourite_list'),
+    path('items/favourite/<str:item_model_name>/<str:item_slug>/', views.FavouriteAdd.as_view(), name='add_to_fav'),
     path('items/<str:item_model_name>/<str:item_slug>/', views.ItemDetail.as_view(), name='item_detail'),
     path('items/<str:item_model_name>/', views.ItemList.as_view(), name='items_list'),
 
